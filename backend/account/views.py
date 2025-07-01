@@ -77,6 +77,7 @@ class CardsListView(APIView):
     def get(self, request):
         # show stripe cards of only that user which is equivalent 
         #to currently logged in user
+        
         stripeCards = StripeModel.objects.filter(user=request.user)
         serializer = CardsListSerializer(stripeCards, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -87,6 +88,18 @@ class UserAccountDetailsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
+        """
+        Retrieve user account details by primary key.
+
+        Args:
+            request: The HTTP request object.
+            pk: The primary key of the user whose details are to be retrieved.
+
+        Returns:
+            Response: A Response object containing the serialized user data if found, 
+                    otherwise a Response with an error message.
+        """
+
         try:
             user = User.objects.get(id=pk)
             serializer = UserSerializer(user, many=False)
@@ -102,6 +115,23 @@ class UserAccountUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request, pk):
+        """
+        Update the details of a user account.
+
+        This method allows an authenticated user to update their account details,
+        including username, email, and password. The user must be the owner of
+        the account they are attempting to update.
+
+        Args:
+            request: The HTTP request object containing the updated user data.
+            pk: The primary key of the user account to update.
+
+        Returns:
+            Response: A Response object containing a success message and the updated
+            user data if the update is successful, or an error message with an
+            appropriate HTTP status code if the update fails.
+        """
+
         user = User.objects.get(id=pk)
         data = request.data
 

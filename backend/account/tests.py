@@ -16,6 +16,10 @@ class AccountApisSetUp(APITestCase):
     
     def setUp(self):
 
+        """
+        Setup method for Account API tests.
+        Creates a normal user and admin user, along with their stripe cards and addresses.
+        """
         self.register_url = reverse("register-page")
         self.login_url = reverse("login-page")
 
@@ -120,6 +124,15 @@ class AccountApisAuthTest(AccountApisSetUp):
         self.assertEqual(response.status_code, 400)
 
     def test_user_registration_with_user_data(self):
+        """
+        This test case tests the user registration with valid user data.
+        In this test case, we are using the valid user data to test the user registration.
+        If the user registration is successful, then the status code should be 200.
+        The user data used in this test case is as follows:
+        username: testuser1
+        email: testuser1@gmail.com
+        password: testuser1
+        """
         response = self.client.post(
             self.register_url, self.user_data, format="json"
         )
@@ -127,6 +140,15 @@ class AccountApisAuthTest(AccountApisSetUp):
 
     def test_user_login_with_user_data(self):
         # register
+        """
+        This test case tests the user login with valid user data.
+        In this test case, we first register the user with valid data and then login the user.
+        If the user login is successful, then the status code should be 200.
+        The user data used in this test case is as follows:
+        username: testuser1
+        email: testuser1@gmail.com
+        password: testuser1
+        """
         self.client.post(
             self.register_url, self.user_data, format="json"
         )
