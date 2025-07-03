@@ -30,16 +30,37 @@ def save_card_in_db(cardData, email, cardId, customer_id, user):
 class TestStripeImplementation(APIView):
 
     def post(self, request):
-        test_payment_process = stripe.PaymentIntent.create(
-            amount=120,
-            currency='inr',
-            payment_method_types=['card'],
-            receipt_email='yash@gmail.com'
-        )
+    # Use a test token instead of raw credit card data
+        stripe_token = "tok_visa"  # Test token for a Visa card
 
-        return Response(data=test_payment_process, status=status.HTTP_200_OK)
+        try:
+            # Create a payment method using the test token
+            payment_method = stripe.PaymentMethod.create(
+                type="card",
+                card={
+                    "token": stripe_token,
+                },
+            )
 
-# check token expired or not
+            # Create a payment intent using the payment method
+            payment_intent = stripe.PaymentIntent.create(
+                amount=120,
+                currency='inr',
+                payment_method_types=['card'],
+                payment_method=payment_method.id,
+                receipt_email='yash@gmail.com'
+            )
+
+            return Response(data=payment_intent, status=status.HTTP_200_OK)
+
+        except stripe.error.CardError as e:
+            errorMessage = e.user_message  # as per stripe documentation
+            return Response({"detail": errorMessage}, status=status.HTTP_400_BAD_REQUEST)
+
+        except stripe.error.APIConnectionError:
+            return Response({"detail": "Network error, Failed to establish a new connection."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    # check token expired or not
+    
 class CheckTokenValidation(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
